@@ -12,7 +12,7 @@ class Scrapes:
             page = requests.get(fs_url)
             soup = BeautifulSoup(page.content, 'html.parser')
             results = soup.find(class_="price-h5")
-            price_elems = results.find('span', class_=None)
+            price_elems = results.find('span', class_="proPriceFormatted")
             price = float(price_elems.text[1:])
             return round(price * fs_discount, 2)
         else:

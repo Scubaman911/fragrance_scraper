@@ -1,16 +1,17 @@
 import requests
 import pandas
 import pprint
+import multiprocessing
 from bs4 import BeautifulSoup
 from tabulate import tabulate
 from collections import OrderedDict
 from time import perf_counter
 from scrapes import *
 
-fs_discount = 0
-fd_discount = 0
-jl_discount = 0
-ps_discount = 0
+fs_discount = 1
+fd_discount = 1
+jl_discount = 1
+ps_discount = 1
 ps_threshold = 0
 fs_saving = 0.00
 fd_saving = 0.00
@@ -91,8 +92,10 @@ class Fragrance():
         return self.properties.get("price_per_mil")
 
     def calc_prices(self):
+        print("calc, {}".format(self.name))
         price = Scrapes.scrape_fs_price(
             self.properties.get("fs_url"), fs_discount)
+        print(price)
         self.properties["prices"]["fs_price"] = price
         price = Scrapes.scrape_fd_price(
             self.properties.get("fd_url"), fd_discount)
@@ -106,10 +109,11 @@ class Fragrance():
             ps_threshold,
             self.size)
         self.properties["prices"]["ps_price"] = price
+        print(self.properties["prices"])
 
-        # print(self.properties['prices'])
 
     def compare(self):
+        print("compares, {}".format(self.name))
         if not self.fs_price and not self.fd_price and not self.jl_price:
             self.properties["cheapest"] = "-"
         else:
@@ -147,18 +151,29 @@ class Fragrance():
         self.properties["price_per_mil"] = ppm
 
 
+def process_frags(entry):
+    print(entry[0])
+    name = entry[0]
+    size = entry[1]
+    fs_url = entry[2]
+    fd_url = entry[3]
+    jl_url = entry[4]
+    ps_url = entry[5]
+    fragrance = Fragrance(name, fs_url, fd_url, jl_url, ps_url, size)
+    return fragrance
+    # scraped_list.append(fragrance)
+
+
 def ingest_csv():
     data = pandas.read_csv('fragrances.csv')
     df = data.where(data.notnull(), None)
-    for i in range(len(df)):
-        name = df['Name'].iloc[i]
-        fs_url = df['fs url'].iloc[i]
-        fd_url = df['fd url'].iloc[i]
-        jl_url = df['jl url'].iloc[i]
-        ps_url = df['ps url'].iloc[i]
-        size = df['Size'].iloc[i]
-        fragrance = Fragrance(name, fs_url, fd_url, jl_url, ps_url, size)
-        scraped_list.append(fragrance)
+    csv_list = df.values.tolist()
+    p = multiprocessing.Pool(8)
+    results = p.map(process_frags, csv_list)
+    p.close()
+    p.join()
+    for item in results:
+        scraped_list.append(item)
 
 
 def display_final_dataframe():
@@ -211,4 +226,4 @@ if __name__ == "__main__":
     t1_start = perf_counter()
     main()
     t1_stop = perf_counter()
-    print("Time to complete: {}".format(t1_stop-t1))
+    print("Time to complete: {}".format(t1_stop-t1_start))
