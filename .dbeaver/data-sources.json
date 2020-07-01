@@ -1,0 +1,32 @@
+{
+	"folders": {},
+	"connections": {
+		"sqlite_jdbc-1730b76dbd4-51c331281ea2e3c0": {
+			"provider": "generic",
+			"driver": "sqlite_jdbc",
+			"name": "frag.db",
+			"save-password": true,
+			"navigator-show-only-entities": true,
+			"navigator-hide-folders": true,
+			"navigator-hide-virtual": true,
+			"read-only": false,
+			"configuration": {
+				"database": "C:\\Users\\Dosth\\Documents\\workspace\\prog\\python\\fragrance_scraper\\frag.db",
+				"url": "jdbc:sqlite:C:\\Users\\Dosth\\Documents\\workspace\\prog\\python\\fragrance_scraper\\frag.db",
+				"type": "dev",
+				"auth-model": "native",
+				"handlers": {}
+			}
+		}
+	},
+	"connection-types": {
+		"dev": {
+			"name": "Development",
+			"color": "255,255,255",
+			"description": "Regular development database",
+			"auto-commit": true,
+			"confirm-execute": false,
+			"confirm-data-change": false
+		}
+	}
+}

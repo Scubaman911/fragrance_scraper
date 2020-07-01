@@ -2,6 +2,8 @@ import pandas
 import requests
 from bs4 import BeautifulSoup
 
+__all__ = ['headers', "Scrapes"]
+
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36', "Upgrade-Insecure-Requests": "1","DNT": "1","Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8","Accept-Language": "en-US,en;q=0.5","Accept-Encoding": "gzip, deflate"}
 
 class Scrapes:
@@ -20,12 +22,16 @@ class Scrapes:
             return None
 
     @staticmethod
-    def scrape_fd_price(fd_url, fd_discount=1):
+    def scrape_fd_price(fd_url, fd_discount, fd_threshold):
         if fd_url is not None:
             page = requests.get(fd_url)
             soup = BeautifulSoup(page.content, 'html.parser')
             price_elem = soup.find("span", class_="price-sales")
             price = float(price_elem.text[1:])
+            if fd_threshold:
+                if price > fd_threshold:
+                    return round(price * fd_discount, 2)
+                return round(price, 2)
             return round(price * fd_discount, 2)
         else:
             return None

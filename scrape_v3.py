@@ -15,6 +15,7 @@ fd_discount = 1
 jl_discount = 1
 ps_discount = 1
 ps_threshold = 0
+fd_threshold = 0
 fs_saving = 0.00
 fd_saving = 0.00
 jl_saving = 0.00
@@ -99,7 +100,7 @@ class Fragrance():
         self.properties["prices"]["fs_price"] = price
         print("{} fs calculated: {}".format(self.name, price))
         price = Scrapes.scrape_fd_price(
-            self.properties.get("fd_url"), fd_discount)
+            self.properties.get("fd_url"), fd_discount, fd_threshold)
         self.properties["prices"]["fd_price"] = price
         print("{} fd calculated: {}".format(self.name, price))
         price = Scrapes.scrape_jl_price(
@@ -115,7 +116,6 @@ class Fragrance():
         print("{} ps calculated: {}".format(self.name, price))
         self.properties["prices"]["ps_price"] = price
         # print(self.properties["prices"])
-
 
     def compare(self):
         if not self.fs_price and not self.fd_price and not self.jl_price:
@@ -167,17 +167,21 @@ def process_frags(entry):
     return fragrance
     # scraped_list.append(fragrance)
 
-def init_pool(fs, fd, jl, ps, ps_thresh):
+
+def init_pool(fs, fd, jl, ps, fd_thresh, ps_thresh):
     global fs_discount
     global fd_discount
     global jl_discount
     global ps_discount
+    global fd_threshold
     global ps_threshold
     fs_discount = fs
     fd_discount = fd
     jl_discount = jl
     ps_discount = ps
+    fd_threshold = fd_threshold
     ps_threshold = ps_thresh
+
 
 def ingest_csv():
     data = pandas.read_csv('fragrances.csv')
@@ -189,8 +193,9 @@ def ingest_csv():
         fd_discount,
         jl_discount,
         ps_discount,
+        fd_threshold,
         ps_threshold
-        ))
+    ))
     results = p.map(process_frags, csv_list)
     p.close()
     p.join()
@@ -231,6 +236,8 @@ if __name__ == "__main__":
                         help="fragrance shop discount", default=0)
     parser.add_argument("--fd", type=int,
                         help="fragrance direct discount", default=0)
+    parser.add_argument("--fd_threshold", type=int,
+                        help="fragrance direct discount", default=0)
     parser.add_argument("--jl", type=float,
                         help="fragrance direct discount", default=0)
     parser.add_argument("--ps", type=int,
@@ -241,6 +248,7 @@ if __name__ == "__main__":
 
     fs_discount = discount_to_pc(args.fs)
     fd_discount = discount_to_pc(args.fd)
+    fd_threshold = args.fd_threshold
     jl_discount = discount_to_pc(args.jl)
     ps_discount = discount_to_pc(args.ps)
     ps_threshold = args.ps_threshold
