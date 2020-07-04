@@ -22,7 +22,7 @@ class Scrapes:
             return None
 
     @staticmethod
-    def scrape_fd_price(fd_url, fd_discount, fd_threshold):
+    def scrape_fd_price(fd_url, fd_discount=1, fd_threshold=None):
         if fd_url is not None:
             page = requests.get(fd_url)
             soup = BeautifulSoup(page.content, 'html.parser')
@@ -48,7 +48,7 @@ class Scrapes:
             return None
 
     @staticmethod
-    def scrape_ps_price(ps_url, ps_discount, ps_threshold, size):
+    def scrape_ps_price(ps_url, ps_discount=1, ps_threshold=None, size=None):
         if ps_url is not None:
             try:
                 page = requests.get(ps_url, timeout=5, headers=headers)
@@ -64,6 +64,8 @@ class Scrapes:
                                 return round(price * ps_discount, 2)
                             return round(price, 2)
                         return round(price * ps_discount, 2)
+                    else:
+                        return None
             except requests.exceptions.ReadTimeout as e:
                 print("Read timeout - {}".format(ps_url))
                 print(e)
